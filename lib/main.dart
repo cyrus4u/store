@@ -71,6 +71,7 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: Column(
+        
         children: [
           Container(
             height: 250,
