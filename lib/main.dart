@@ -8,6 +8,8 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:store/model/page_view_model.dart';
 import 'dart:io';
 
+import 'package:store/model/special_offer_model.dart';
+
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {
@@ -46,6 +48,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   late Future<List<PageViewModel>> pageViewFuture;
+  late Future<List<SpecialOfferModel>> specialOfferFuture;
   PageController pageController = PageController();
 
   @override
@@ -53,6 +56,7 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     super.initState();
     pageViewFuture = sendRequestPageView();
+    specialOfferFuture = sendRequestSpecialOffer();
   }
 
   @override
@@ -70,63 +74,127 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-      body: Column(
-        
-        children: [
-          Container(
-            height: 250,
-            color: Colors.amber,
-            child: FutureBuilder<List<PageViewModel>>(
-              future: pageViewFuture,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  List<PageViewModel>? model = snapshot.data;
-                  return Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      PageView.builder(
-                        controller: pageController,
-                         allowImplicitScrolling: true,
-                        itemCount: model!.length,
-                        itemBuilder: (context, index) {
-                          return pageViewItems(model[index]);
-                        },
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: SmoothPageIndicator(
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            Container(
+              height: 250,
+              color: Colors.white,
+              child: FutureBuilder<List<PageViewModel>>(
+                future: pageViewFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<PageViewModel>? model = snapshot.data;
+                    return Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        PageView.builder(
                           controller: pageController,
-                          count: model.length,
-                          effect: ExpandingDotsEffect(
-                            dotHeight: 10,
-                            dotWidth: 10,
-                            spacing: 3,
-                            dotColor: Colors.white,
-                            activeDotColor: Colors.blue,
-                          ),
-                          onDotClicked: (index) {
-                            pageController.animateToPage(
-                              index,
-                              duration: Duration(seconds: 1),
-                              curve: Curves.bounceOut,
-                            );
+                          allowImplicitScrolling: true,
+                          itemCount: model!.length,
+                          itemBuilder: (context, index) {
+                            return pageViewItems(model[index]);
                           },
                         ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SmoothPageIndicator(
+                            controller: pageController,
+                            count: model.length,
+                            effect: ExpandingDotsEffect(
+                              dotHeight: 10,
+                              dotWidth: 10,
+                              spacing: 3,
+                              dotColor: Colors.white,
+                              activeDotColor: Colors.blue,
+                            ),
+                            onDotClicked: (index) {
+                              pageController.animateToPage(
+                                index,
+                                duration: Duration(seconds: 1),
+                                curve: Curves.bounceOut,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  } else {
+                    return Center(
+                      child: JumpingDotsProgressIndicator(
+                        fontSize: 60,
+                        dotSpacing: 5,
                       ),
-                    ],
-                  );
-                } else {
-                  return Center(
-                    child: JumpingDotsProgressIndicator(
-                      fontSize: 60,
-                      dotSpacing: 5,
-                    ),
-                  );
-                }
-              },
+                    );
+                  }
+                },
+              ),
             ),
-          ),
-        ],
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                height: 300,
+                color: Colors.red,
+                child: FutureBuilder(
+                  future: specialOfferFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData) {
+                      List<SpecialOfferModel>? model = snapshot.data;
+                      return ListView.builder(
+                        reverse: true,
+                        shrinkWrap: true,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: model!.length,
+                        itemBuilder: (context, index) {
+                          if (index == 0) {
+                            return Container(
+                              height: 300,
+                              width: 200,
+                              child: Column(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 10.0,
+                                      right: 10,
+                                      top: 15,
+                                    ),
+                                    child: Image.asset(
+                                      'images/qorfe.png',
+                                      height: 230,
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 5.0),
+                                    child: Expanded(
+                                      child: OutlinedButton(
+                                        style: OutlinedButton.styleFrom(
+                                          side: BorderSide(color: Colors.white),
+                                        ),
+                                        onPressed: () {},
+                                        child: Text(
+                                          'مشاهده همه',
+                                          style: TextStyle(color: Colors.white),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else {
+                            return Container(width: 200,);
+                          }
+                        },
+                      );
+                    } else {
+                      return Center(child: JumpingDotsProgressIndicator());
+                    }
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -162,6 +230,48 @@ class _HomePageState extends State<HomePage> {
       print('Error fetching data: $e');
       return [];
     }
+  }
+
+  Future<List<SpecialOfferModel>> sendRequestSpecialOffer() async {
+    List<SpecialOfferModel> models = [];
+
+    // Your Supabase REST endpoint
+    const String url =
+        'https://ukrshwdqetdpzfsjmgbc.supabase.co/rest/v1/products';
+
+    // Your anon public API key
+    const String apiKey =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrcnNod2RxZXRkcHpmc2ptZ2JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NDkzMzMsImV4cCI6MjA3ODQyNTMzM30.KNnALmGW6pW5GrUslwnL07dNUQRDwbYkzIhJV2bi4XU';
+
+    try {
+      var response = await Dio().get(
+        url,
+        options: Options(
+          headers: {
+            'apikey': apiKey,
+            'Authorization': 'Bearer $apiKey',
+            'Content-Type': 'application/json',
+          },
+        ),
+      );
+
+      // Check response
+      if (response.statusCode == 200) {
+        print('✅ Data fetched successfully!');
+        print(response.data);
+
+        // Example: parse response into model
+        models = (response.data as List)
+            .map((item) => SpecialOfferModel.fromJson(item))
+            .toList();
+      } else {
+        print('⚠️ Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('❌ Error fetching data: $e');
+    }
+
+    return models;
   }
 
   Padding pageViewItems(PageViewModel pageViewModel) {
