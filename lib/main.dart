@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:ui';
 
 import 'package:dio/dio.dart';
@@ -147,7 +146,7 @@ class _HomePageState extends State<HomePage> {
                         itemCount: model!.length,
                         itemBuilder: (context, index) {
                           if (index == 0) {
-                            return Container(
+                            return SizedBox(
                               height: 300,
                               width: 200,
                               child: Column(
@@ -203,19 +202,95 @@ class _HomePageState extends State<HomePage> {
     return Container(
       width: 200,
       height: 300,
-      child: Card(child: Container(width: 200)),
+      child: Card(
+        child: SizedBox(
+          width: 200,
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Image.network(
+                  specialOfferModel.imageUrl,
+                  height: 150,
+                  fit: BoxFit.fill,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  specialOfferModel.productName,
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                ),
+              ),
+              Expanded(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10, bottom: 10),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${specialOfferModel.offPrice}T',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            '${specialOfferModel.price}T',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.lineThrough,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 10, right: 10),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(5),
+                          ),
+                          child: Text(
+                            specialOfferModel.offPercent.toString(),
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
   Future<List<PageViewModel>> sendRequestPageView() async {
     return await fetchData('pageview', (json) => PageViewModel.fromJson(json));
-
   }
 
   Future<List<SpecialOfferModel>> sendRequestSpecialOffer() async {
-     return await fetchData('products', (json) => SpecialOfferModel.fromJson(json));
-
+    return await fetchData(
+      'products',
+      (json) => SpecialOfferModel.fromJson(json),
+    );
   }
+
   Future<List<T>> fetchData<T>(
     String tableName,
     T Function(Map<String, dynamic>) fromJson,
@@ -253,11 +328,9 @@ class _HomePageState extends State<HomePage> {
   Padding pageViewItems(PageViewModel pageViewModel) {
     return Padding(
       padding: EdgeInsets.all(10),
-      child: Container(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Image.network(pageViewModel.imgeUrl, fit: BoxFit.fill),
-        ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Image.network(pageViewModel.imgeUrl, fit: BoxFit.fill),
       ),
     );
   }
