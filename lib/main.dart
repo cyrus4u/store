@@ -208,18 +208,25 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<List<PageViewModel>> sendRequestPageView() async {
-    List<PageViewModel> models = [];
-    // Your Supabase REST endpoint
-    const String url =
-        'https://ukrshwdqetdpzfsjmgbc.supabase.co/rest/v1/pageview';
+    return await fetchData('pageview', (json) => PageViewModel.fromJson(json));
 
-    // Your anon public API key
+  }
+
+  Future<List<SpecialOfferModel>> sendRequestSpecialOffer() async {
+     return await fetchData('products', (json) => SpecialOfferModel.fromJson(json));
+
+  }
+  Future<List<T>> fetchData<T>(
+    String tableName,
+    T Function(Map<String, dynamic>) fromJson,
+  ) async {
+    const String baseUrl = 'https://ukrshwdqetdpzfsjmgbc.supabase.co/rest/v1/';
     const String apiKey =
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrcnNod2RxZXRkcHpmc2ptZ2JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NDkzMzMsImV4cCI6MjA3ODQyNTMzM30.KNnALmGW6pW5GrUslwnL07dNUQRDwbYkzIhJV2bi4XU';
 
     try {
-      var response = await Dio().get(
-        url,
+      final response = await Dio().get(
+        '$baseUrl$tableName',
         options: Options(
           headers: {
             'apikey': apiKey,
@@ -229,76 +236,29 @@ class _HomePageState extends State<HomePage> {
         ),
       );
 
-      // Check response
       if (response.statusCode == 200) {
-        print('✅ Data fetched successfully!');
-        print(response.data);
-
-        // Example: parse response into model
-        models = (response.data as List)
-            .map((item) => PageViewModel.fromJson(item))
-            .toList();
+        print('✅ Data fetched successfully from $tableName');
+        final List data = response.data;
+        return data.map((item) => fromJson(item)).toList();
       } else {
         print('⚠️ Error: ${response.statusCode}');
+        return [];
       }
     } catch (e) {
-      print('❌ Error fetching data: $e');
+      print('❌ Error fetching $tableName data: $e');
+      return [];
     }
-
-    return models;
   }
-}
 
-Future<List<SpecialOfferModel>> sendRequestSpecialOffer() async {
-  List<SpecialOfferModel> models = [];
-
-  // Your Supabase REST endpoint
-  const String url =
-      'https://ukrshwdqetdpzfsjmgbc.supabase.co/rest/v1/products';
-
-  // Your anon public API key
-  const String apiKey =
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrcnNod2RxZXRkcHpmc2ptZ2JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NDkzMzMsImV4cCI6MjA3ODQyNTMzM30.KNnALmGW6pW5GrUslwnL07dNUQRDwbYkzIhJV2bi4XU';
-
-  try {
-    var response = await Dio().get(
-      url,
-      options: Options(
-        headers: {
-          'apikey': apiKey,
-          'Authorization': 'Bearer $apiKey',
-          'Content-Type': 'application/json',
-        },
+  Padding pageViewItems(PageViewModel pageViewModel) {
+    return Padding(
+      padding: EdgeInsets.all(10),
+      child: Container(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(15),
+          child: Image.network(pageViewModel.imgeUrl, fit: BoxFit.fill),
+        ),
       ),
     );
-
-    // Check response
-    if (response.statusCode == 200) {
-      print('✅ Data fetched successfully!');
-      print(response.data);
-
-      // Example: parse response into model
-      models = (response.data as List)
-          .map((item) => SpecialOfferModel.fromJson(item))
-          .toList();
-    } else {
-      print('⚠️ Error: ${response.statusCode}');
-    }
-  } catch (e) {
-    print('❌ Error fetching data: $e');
   }
-
-  return models;
-}
-
-Padding pageViewItems(PageViewModel pageViewModel) {
-  return Padding(
-    padding: EdgeInsets.all(10),
-    child: Container(
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
-        child: Image.network(pageViewModel.imgeUrl, fit: BoxFit.fill),
-      ),
-    ),
-  );
 }
