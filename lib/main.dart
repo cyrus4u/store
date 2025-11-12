@@ -182,7 +182,7 @@ class _HomePageState extends State<HomePage> {
                               ),
                             );
                           } else {
-                            return Container(width: 200,);
+                            return specialOfferItem(model[index - 1]);
                           }
                         },
                       );
@@ -199,45 +199,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<List<PageViewModel>> sendRequestPageView() async {
-    List<PageViewModel> model = [];
-
-    try {
-      var response = await Dio().get(
-        'https://raw.githubusercontent.com/cyrus4u/my-images-data/main/photos.json',
-        options: Options(responseType: ResponseType.plain), // Force raw text
-      );
-
-      // Convert response.data (String) → Map
-      var jsonData = jsonDecode(response.data);
-
-      // Access the list of photos
-      var photos = jsonData['photos'];
-
-      // Parse the list
-      for (var item in photos) {
-        PageViewModel page = PageViewModel(item['id'], item['imgUrl']);
-        model.add(page);
-      }
-
-      // Debug logs
-      for (var m in model) {
-        print(m.imgUrl);
-      }
-
-      return model;
-    } catch (e) {
-      print('Error fetching data: $e');
-      return [];
-    }
+  Container specialOfferItem(SpecialOfferModel specialOfferModel) {
+    return Container(
+      width: 200,
+      height: 300,
+      child: Card(child: Container(width: 200)),
+    );
   }
 
-  Future<List<SpecialOfferModel>> sendRequestSpecialOffer() async {
-    List<SpecialOfferModel> models = [];
-
+  Future<List<PageViewModel>> sendRequestPageView() async {
+    List<PageViewModel> models = [];
     // Your Supabase REST endpoint
     const String url =
-        'https://ukrshwdqetdpzfsjmgbc.supabase.co/rest/v1/products';
+        'https://ukrshwdqetdpzfsjmgbc.supabase.co/rest/v1/pageview';
 
     // Your anon public API key
     const String apiKey =
@@ -262,7 +236,7 @@ class _HomePageState extends State<HomePage> {
 
         // Example: parse response into model
         models = (response.data as List)
-            .map((item) => SpecialOfferModel.fromJson(item))
+            .map((item) => PageViewModel.fromJson(item))
             .toList();
       } else {
         print('⚠️ Error: ${response.statusCode}');
@@ -273,16 +247,58 @@ class _HomePageState extends State<HomePage> {
 
     return models;
   }
+}
 
-  Padding pageViewItems(PageViewModel pageViewModel) {
-    return Padding(
-      padding: EdgeInsets.all(10),
-      child: Container(
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(15),
-          child: Image.network(pageViewModel.imgUrl, fit: BoxFit.fill),
-        ),
+Future<List<SpecialOfferModel>> sendRequestSpecialOffer() async {
+  List<SpecialOfferModel> models = [];
+
+  // Your Supabase REST endpoint
+  const String url =
+      'https://ukrshwdqetdpzfsjmgbc.supabase.co/rest/v1/products';
+
+  // Your anon public API key
+  const String apiKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrcnNod2RxZXRkcHpmc2ptZ2JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NDkzMzMsImV4cCI6MjA3ODQyNTMzM30.KNnALmGW6pW5GrUslwnL07dNUQRDwbYkzIhJV2bi4XU';
+
+  try {
+    var response = await Dio().get(
+      url,
+      options: Options(
+        headers: {
+          'apikey': apiKey,
+          'Authorization': 'Bearer $apiKey',
+          'Content-Type': 'application/json',
+        },
       ),
     );
+
+    // Check response
+    if (response.statusCode == 200) {
+      print('✅ Data fetched successfully!');
+      print(response.data);
+
+      // Example: parse response into model
+      models = (response.data as List)
+          .map((item) => SpecialOfferModel.fromJson(item))
+          .toList();
+    } else {
+      print('⚠️ Error: ${response.statusCode}');
+    }
+  } catch (e) {
+    print('❌ Error fetching data: $e');
   }
+
+  return models;
+}
+
+Padding pageViewItems(PageViewModel pageViewModel) {
+  return Padding(
+    padding: EdgeInsets.all(10),
+    child: Container(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(15),
+        child: Image.network(pageViewModel.imgeUrl, fit: BoxFit.fill),
+      ),
+    ),
+  );
 }
