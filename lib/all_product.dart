@@ -13,7 +13,7 @@ class _AllProductState extends State<AllProduct> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
-        title: Text('فروشگاه'),
+        title: Text('فروشگاه',style: TextStyle(fontFamily: 'Vazir'),),
         centerTitle: true,
         actions: [IconButton(onPressed: () {}, icon: Icon(Icons.map))],
       ),
