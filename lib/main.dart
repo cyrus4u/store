@@ -4,6 +4,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
+import 'package:store/all_product.dart';
+import 'package:store/model/events_model.dart';
 import 'package:store/model/page_view_model.dart';
 import 'dart:io';
 
@@ -48,6 +50,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   late Future<List<PageViewModel>> pageViewFuture;
   late Future<List<SpecialOfferModel>> specialOfferFuture;
+  late Future<List<EventsModel>> eventFuture;
   PageController pageController = PageController();
 
   @override
@@ -56,6 +59,7 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     pageViewFuture = sendRequestPageView();
     specialOfferFuture = sendRequestSpecialOffer();
+    eventFuture = sendRequestEvents();
   }
 
   @override
@@ -169,7 +173,15 @@ class _HomePageState extends State<HomePage> {
                                         style: OutlinedButton.styleFrom(
                                           side: BorderSide(color: Colors.white),
                                         ),
-                                        onPressed: () {},
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  AllProduct(),
+                                            ),
+                                          );
+                                        },
                                         child: Text(
                                           'مشاهده همه',
                                           style: TextStyle(color: Colors.white),
@@ -190,6 +202,92 @@ class _HomePageState extends State<HomePage> {
                     }
                   },
                 ),
+              ),
+            ),
+            Container(
+              height: 500,
+              width: double.infinity,
+              child: FutureBuilder<List<EventsModel>>(
+                future: eventFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    List<EventsModel>? model = snapshot.data;
+                    return Column(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  height: 150,
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Image.network(
+                                      model![0].imageUrl,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Container(
+                                  height: 150,
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Image.network(
+                                      model[1].imageUrl,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Container(
+                                  height: 150,
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Image.network(
+                                      model[2].imageUrl,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(width: 10),
+                              Expanded(
+                                child: Container(
+                                  height: 150,
+                                  width: MediaQuery.of(context).size.width / 2,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(15),
+                                    child: Image.network(
+                                      model[3].imageUrl,
+                                      fit: BoxFit.fill,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  } else {
+                    return Container();
+                  }
+                },
               ),
             ),
           ],
@@ -264,7 +362,6 @@ class _HomePageState extends State<HomePage> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              
                             ),
                           ),
                         ),
@@ -291,6 +388,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<List<EventsModel>> sendRequestEvents() async {
+    return await fetchData('events', (json) => EventsModel.fromJson(json));
+  }
+
   Future<List<T>> fetchData<T>(
     String tableName,
     T Function(Map<String, dynamic>) fromJson,
@@ -301,7 +402,7 @@ class _HomePageState extends State<HomePage> {
 
     try {
       final response = await Dio().get(
-        '$baseUrl$tableName',
+        '$baseUrl$tableName?order=id.asc',
         options: Options(
           headers: {
             'apikey': apiKey,
@@ -330,7 +431,7 @@ class _HomePageState extends State<HomePage> {
       padding: EdgeInsets.all(10),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15),
-        child: Image.network(pageViewModel.imgeUrl, fit: BoxFit.fill),
+        child: Image.network(pageViewModel.imageUrl, fit: BoxFit.fill),
       ),
     );
   }
