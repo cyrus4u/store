@@ -3,6 +3,7 @@ import 'package:progress_indicators/progress_indicators.dart';
 import 'package:store/bottom_nav.dart';
 import 'package:store/model/special_offer_model.dart';
 import 'package:store/services/api_service.dart';
+import 'package:store/single_product.dart';
 
 class AllProduct extends StatefulWidget {
   const AllProduct({super.key});
@@ -68,30 +69,38 @@ class _AllProductState extends State<AllProduct> {
     );
   }
 
-  Card generateItem(SpecialOfferModel specialOfferModel) {
-    return Card(
-      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      elevation: 10,
-      child: Center(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: Container(
-                width: 90,
-                height: 90,
-                child: Image.network(specialOfferModel.imageUrl),
+  Widget generateItem(SpecialOfferModel specialOfferModel) {
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => SingleProduct(specialOfferModel)),
+        );
+      },
+      child: Card(
+        // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+        elevation: 10,
+        child: Center(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Container(
+                  width: 90,
+                  height: 90,
+                  child: Image.network(specialOfferModel.imageUrl),
+                ),
               ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: Text(specialOfferModel.productName),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top: 10.0),
-              child: Text(specialOfferModel.price.toString()),
-            ),
-          ],
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text(specialOfferModel.productName),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text(specialOfferModel.price.toString()),
+              ),
+            ],
+          ),
         ),
       ),
     );
