@@ -1,6 +1,4 @@
 import 'dart:ui';
-
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -8,8 +6,8 @@ import 'package:store/all_product.dart';
 import 'package:store/model/events_model.dart';
 import 'package:store/model/page_view_model.dart';
 import 'dart:io';
-
 import 'package:store/model/special_offer_model.dart';
+import 'package:store/services/api_service.dart';
 
 class MyHttpOverrides extends HttpOverrides {
   @override
@@ -52,14 +50,21 @@ class _HomePageState extends State<HomePage> {
   late Future<List<SpecialOfferModel>> specialOfferFuture;
   late Future<List<EventsModel>> eventFuture;
   PageController pageController = PageController();
+  final api = ApiService();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    pageViewFuture = sendRequestPageView();
-    specialOfferFuture = sendRequestSpecialOffer();
-    eventFuture = sendRequestEvents();
+    pageViewFuture = api.fetchData(
+      'pageview',
+      (json) => PageViewModel.fromJson(json),
+    );
+    specialOfferFuture = api.fetchData(
+      'products',
+      (json) => SpecialOfferModel.fromJson(json),
+    );
+    eventFuture = api.fetchData('events', (json) => EventsModel.fromJson(json));
   }
 
   @override
@@ -377,54 +382,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<List<PageViewModel>> sendRequestPageView() async {
-    return await fetchData('pageview', (json) => PageViewModel.fromJson(json));
-  }
-
-  Future<List<SpecialOfferModel>> sendRequestSpecialOffer() async {
-    return await fetchData(
-      'products',
-      (json) => SpecialOfferModel.fromJson(json),
-    );
-  }
-
-  Future<List<EventsModel>> sendRequestEvents() async {
-    return await fetchData('events', (json) => EventsModel.fromJson(json));
-  }
-
-  Future<List<T>> fetchData<T>(
-    String tableName,
-    T Function(Map<String, dynamic>) fromJson,
-  ) async {
-    const String baseUrl = 'https://ukrshwdqetdpzfsjmgbc.supabase.co/rest/v1/';
-    const String apiKey =
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVrcnNod2RxZXRkcHpmc2ptZ2JjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI4NDkzMzMsImV4cCI6MjA3ODQyNTMzM30.KNnALmGW6pW5GrUslwnL07dNUQRDwbYkzIhJV2bi4XU';
-
-    try {
-      final response = await Dio().get(
-        '$baseUrl$tableName?order=id.asc',
-        options: Options(
-          headers: {
-            'apikey': apiKey,
-            'Authorization': 'Bearer $apiKey',
-            'Content-Type': 'application/json',
-          },
-        ),
-      );
-
-      if (response.statusCode == 200) {
-        print('✅ Data fetched successfully from $tableName');
-        final List data = response.data;
-        return data.map((item) => fromJson(item)).toList();
-      } else {
-        print('⚠️ Error: ${response.statusCode}');
-        return [];
-      }
-    } catch (e) {
-      print('❌ Error fetching $tableName data: $e');
-      return [];
-    }
-  }
+  
 
   Padding pageViewItems(PageViewModel pageViewModel) {
     return Padding(

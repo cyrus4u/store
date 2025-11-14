@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:progress_indicators/progress_indicators.dart';
 import 'package:store/bottom_nav.dart';
+import 'package:store/model/special_offer_model.dart';
+import 'package:store/services/api_service.dart';
 
 class AllProduct extends StatefulWidget {
   const AllProduct({super.key});
@@ -9,11 +12,23 @@ class AllProduct extends StatefulWidget {
 }
 
 class _AllProductState extends State<AllProduct> {
+  late Future<List<SpecialOfferModel>> specialOfferFuture;
+  final api = ApiService();
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    specialOfferFuture = api.fetchData(
+      'products',
+      (json) => SpecialOfferModel.fromJson(json),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      
+
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         shape: CircleBorder(),
@@ -26,7 +41,59 @@ class _AllProductState extends State<AllProduct> {
         centerTitle: true,
         actions: [IconButton(onPressed: () {}, icon: Icon(Icons.map))],
       ),
-      body: Container(),
+      body: Container(
+        child: FutureBuilder<List<SpecialOfferModel>>(
+          future: specialOfferFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              List<SpecialOfferModel>? model = snapshot.data;
+              return Padding(
+                padding: const EdgeInsets.all(10.0),
+                child: GridView.count(
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  crossAxisCount: 2,
+                  children: List.generate(
+                    model!.length,
+                    (index) => generateItem(model[index]),
+                  ),
+                ),
+              );
+            } else {
+              return Center(child: JumpingDotsProgressIndicator());
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Card generateItem(SpecialOfferModel specialOfferModel) {
+    return Card(
+      // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      elevation: 10,
+      child: Center(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Container(
+                width: 90,
+                height: 90,
+                child: Image.network(specialOfferModel.imageUrl),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Text(specialOfferModel.productName),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top: 10.0),
+              child: Text(specialOfferModel.price.toString()),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
