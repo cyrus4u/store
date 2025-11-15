@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:progress_indicators/progress_indicators.dart';
 import 'package:store/bottom_nav.dart';
+import 'package:store/google_maps.dart';
 import 'package:store/model/special_offer_model.dart';
 import 'package:store/services/api_service.dart';
 import 'package:store/single_product.dart';
@@ -40,7 +41,17 @@ class _AllProductState extends State<AllProduct> {
         backgroundColor: Colors.red,
         title: Text('فروشگاه', style: TextStyle(fontFamily: 'Vazir')),
         centerTitle: true,
-        actions: [IconButton(onPressed: () {}, icon: Icon(Icons.map))],
+        actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => GoogleMaps()),
+              );
+            },
+            icon: Icon(Icons.map),
+          ),
+        ],
       ),
       body: Container(
         child: FutureBuilder<List<SpecialOfferModel>>(
@@ -74,7 +85,9 @@ class _AllProductState extends State<AllProduct> {
       onTap: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => SingleProduct(specialOfferModel)),
+          MaterialPageRoute(
+            builder: (context) => SingleProduct(specialOfferModel),
+          ),
         );
       },
       child: Card(
