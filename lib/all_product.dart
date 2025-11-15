@@ -30,7 +30,6 @@ class _AllProductState extends State<AllProduct> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-
       floatingActionButton: FloatingActionButton(
         onPressed: () {},
         shape: CircleBorder(),
@@ -82,23 +81,28 @@ class _AllProductState extends State<AllProduct> {
 
   Widget generateItem(SpecialOfferModel specialOfferModel) {
     return InkWell(
-      onTap: () {
-        Navigator.push(
+      onTap: () async {
+        await Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => SingleProduct(specialOfferModel),
           ),
         );
+
+        // 🔥 After coming back from SingleProduct, refresh the basket screen
+        // BUT: we can't call loadBasket() here because it's inside ShopBasket.
+
+        // Instead: tell Flutter to rebuild the whole bottom nav screen structure
+        setState(() {});
       },
       child: Card(
-        // shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         elevation: 10,
         child: Center(
           child: Column(
             children: [
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
-                child: Container(
+                child: SizedBox(
                   width: 90,
                   height: 90,
                   child: Image.network(specialOfferModel.imageUrl),
@@ -107,9 +111,12 @@ class _AllProductState extends State<AllProduct> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: Text(
-                  maxLines: 1,
                   specialOfferModel.productName,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  maxLines: 1,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               Padding(

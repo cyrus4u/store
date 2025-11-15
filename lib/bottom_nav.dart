@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:store/shop_basket.dart';
 
 class BottomNav extends StatelessWidget {
   const BottomNav({super.key});
@@ -37,7 +38,12 @@ class BottomNav extends StatelessWidget {
                   children: [
                     IconButton(onPressed: () {}, icon: Icon(Icons.search)),
                     IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ShopBasket()),
+                        );
+                      },
                       icon: Icon(Icons.shopping_basket),
                     ),
                   ],
