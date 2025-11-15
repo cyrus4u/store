@@ -30,8 +30,8 @@ class _GoogleMapsState extends State<GoogleMaps> {
             markers: [
               Marker(
                 point: LatLng(35.768663, 51.458457),
-                width: 80,
-                height: 80,
+                width: 200,
+                height: 20,
                 child: Text(
                   'نمایندگی دیجی کالا شعبه تهران',
                   style: TextStyle(color: Colors.red),
@@ -39,15 +39,15 @@ class _GoogleMapsState extends State<GoogleMaps> {
               ),
               Marker(
                 point: LatLng(37.278906, 49.584580),
-                width: 80,
-                height: 80,
+                width: 200,
+                height: 16,
                 child: Text('نمایندگی دیجی کالا شعبه رشت',
                   style: TextStyle(color: Colors.red),),
               ),
               Marker(
                 point: LatLng(31.315439, 48.663467),
-                width: 80,
-                height: 80,
+                width: 200,
+                height: 20,
                 child: Text('نمایندگی دیجی کالا شعبه اهواز',
                   style: TextStyle(color: Colors.red),),
               ),

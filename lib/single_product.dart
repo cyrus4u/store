@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:store/model/special_offer_model.dart';
 
 class SingleProduct extends StatelessWidget {
@@ -52,5 +53,20 @@ class SingleProduct extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void saveDataToSP() async {
+    List<String> imageUrls = [];
+    List<String> productTitels = [];
+    List<String> productPrice = [];
+
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    imageUrls.add(specialOfferModel.imageUrl);
+    productTitels.add(specialOfferModel.productName);
+    productPrice.add(specialOfferModel.price.toString());
+    prefs.setStringList('imageUrls', imageUrls);
+    prefs.setStringList('productTitels', productTitels);
+    prefs.setStringList('productPrice', productPrice);
+
   }
 }

@@ -106,7 +106,11 @@ class _AllProductState extends State<AllProduct> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
-                child: Text(specialOfferModel.productName),
+                child: Text(
+                  maxLines: 1,
+                  specialOfferModel.productName,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
