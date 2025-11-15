@@ -5,9 +5,13 @@ import 'package:store/model/special_offer_model.dart';
 class SingleProduct extends StatelessWidget {
   SingleProduct(this.specialOfferModel, {super.key});
   SpecialOfferModel specialOfferModel;
+  List<String> imageUrls = [];
+  List<String> productTitels = [];
+  List<String> productPrice = [];
 
   @override
   Widget build(BuildContext context) {
+    getDataFromPref();
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.red,
@@ -42,7 +46,9 @@ class SingleProduct extends StatelessWidget {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
                       ),
-                      onPressed: () {},
+                      onPressed: () {
+                        saveDataToSP();
+                      },
                       child: Text('افزودن به سبد خرید'),
                     ),
                   ),
@@ -55,18 +61,22 @@ class SingleProduct extends StatelessWidget {
     );
   }
 
-  void saveDataToSP() async {
-    List<String> imageUrls = [];
-    List<String> productTitels = [];
-    List<String> productPrice = [];
+  Future<void> getDataFromPref() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    imageUrls = prefs.getStringList('imageUrls') ?? [];
+    productTitels = prefs.getStringList('productTitels') ?? [];
+    productPrice = prefs.getStringList('productPrice') ?? [];
+    print(productTitels.length);
+  }
 
+  Future<void> saveDataToSP() async {
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     imageUrls.add(specialOfferModel.imageUrl);
     productTitels.add(specialOfferModel.productName);
     productPrice.add(specialOfferModel.price.toString());
+
     prefs.setStringList('imageUrls', imageUrls);
     prefs.setStringList('productTitels', productTitels);
     prefs.setStringList('productPrice', productPrice);
-
   }
 }
